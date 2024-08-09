@@ -39,13 +39,40 @@ void terminal_putentryat(unsigned char c, uint8_t color, size_t x, size_t y) {
 }
 
 void terminal_putchar(char c) {
-	unsigned char uc = c;
-	terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
-	if (++terminal_column == VGA_WIDTH) {
-		terminal_column = 0;
-		if (++terminal_row == VGA_HEIGHT)
-			terminal_row = 0;
-	}
+    unsigned char uc = c;
+    terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
+
+    switch (c) {
+        case '\n': // Newline
+            terminal_column = 0;
+            if (++terminal_row == VGA_HEIGHT)
+                terminal_row = 0;
+            break;
+
+        case '\r': // Carriage Return
+            terminal_column = 0;
+            break;
+
+        case '\t': // Tab
+            terminal_column += 8 - (terminal_column % 8);
+            break;
+
+        case '\"': // Double Quote
+            terminal_putchar('"');
+            break;
+
+        case '\'': // Single Quote
+            terminal_putchar('\'');
+            break;
+
+        default:
+            if (++terminal_column == VGA_WIDTH) {
+                terminal_column = 0;
+                if (++terminal_row == VGA_HEIGHT)
+                    terminal_row = 0;
+            }
+            break;
+    }
 }
 
 void terminal_write(const char* data, size_t size) {
